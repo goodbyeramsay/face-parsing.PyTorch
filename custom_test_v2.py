@@ -32,7 +32,7 @@ def vis_parsing_maps(im, parsing_anno, stride, save_im=False, save_path='vis_res
 
     im = np.array(im)
     vis_im = im.copy().astype(np.uint8)
-    vis_im2 = im.copy().astype(np.uint8)
+    mask = np.zeros((im.shape[0], im.shape[1], 3), np.uint8)
     vis_parsing_anno = parsing_anno.copy().astype(np.uint8)
     vis_parsing_anno = cv2.resize(vis_parsing_anno, None, fx=stride, fy=stride, interpolation=cv2.INTER_NEAREST)
     vis_parsing_anno_color = np.zeros((vis_parsing_anno.shape[0], vis_parsing_anno.shape[1], 3)) + 255
@@ -43,25 +43,32 @@ def vis_parsing_maps(im, parsing_anno, stride, save_im=False, save_path='vis_res
         index = np.where(vis_parsing_anno == pi)
         vis_parsing_anno_color[index[0], index[1], :] = part_colors[pi]
 
-        if pi not in range(1, 13):
-            vis_im2[index[0], index[1], :] = [0,0,0]
+        if pi in (1,2,3,4,5,6,9,10,11,12,13):
+            mask[index[0], index[1], :] = [255, 255, 255]
 
+    # addWeighted parsed color and original image
     vis_parsing_anno_color = vis_parsing_anno_color.astype(np.uint8)
     # print(vis_parsing_anno_color.shape, vis_im.shape)
     vis_im = cv2.addWeighted(cv2.cvtColor(vis_im, cv2.COLOR_RGB2BGR), 0.4, vis_parsing_anno_color, 0.6, 0)
 
+    # only show face area(other pixel black)
+    vis_im2 = cv2.bitwise_and(im, mask)
+    vis_im2 = vis_im2[:, :, ::-1] #bgr2rgb
+
     # view
-    plt.figure()
-    plt.imshow(vis_im)
-    plt.figure()
-    plt.imshow(vis_im2)
-    plt.show()
+    # plt.figure()
+    # plt.imshow(vis_im)
+    # plt.figure()
+    # plt.imshow(mask)
+    # plt.figure()
+    # plt.imshow(vis_im2)
+    # plt.show()
 
     # Save result or not
     if save_im:
-        cv2.imwrite(save_path + '_pa.png', vis_parsing_anno)
-        cv2.imwrite(save_path, vis_im, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
-        cv2.imwrite(save_path + '_pa2.png', vis_im2[:, :, ::-1], [int(cv2.IMWRITE_JPEG_QUALITY), 100])
+        # cv2.imwrite(save_path + '_pa.png', vis_parsing_anno)
+        cv2.imwrite(save_path, vis_im2, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
+
 
     # return vis_im
 
@@ -93,7 +100,7 @@ def evaluate(respth='./res/test_res', dspth='./data', cp='model_final_diss.pth')
             # print(parsing)
             print(np.unique(parsing))
 
-            vis_parsing_maps(image, parsing, stride=1, save_im=False, save_path=osp.join(respth, image_path))
+            vis_parsing_maps(image, parsing, stride=1, save_im=True, save_path=osp.join(respth, image_path))
 
 
 
