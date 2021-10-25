@@ -17,6 +17,8 @@ import matplotlib.pyplot as plt
 # atts = [0 'background(human area)', 1 'skin', 2 'l_brow', 3 'r_brow', 4 'l_eye', 5 'r_eye', 6 'eye_g', 7 'l_ear', 8 'r_ear', 9 'ear_r',
 # 10 'nose', 11 'mouth', 12 'u_lip', 13 'l_lip', 14 'neck', 15 'neck_l', 16 'cloth', 17 'hair', 18 'hat']
 
+# GPU SETTING
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # Set the GPU 1 to use
 
 def vis_parsing_maps(im, parsing_anno, stride, save_im=False, save_path='vis_results/parsing_map_on_im.jpg'):
     # Colors for all 20 parts
